@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Expanded(
                       child: Container(
                         color: Colors.white,
-                        padding: const EdgeInsets.all(200),
+                        padding: const EdgeInsets.all(20),
                         child: const Text("Question 1"),
                       ),
                     ),
