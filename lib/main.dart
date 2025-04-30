@@ -13,9 +13,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false, // Désactiver la bannière de débogage
-      home: MyHomePage(title: 'Dice Application'),
+      home: const MyHomePage(title: 'True ou False'),
+      theme: ThemeData(fontFamily: "Montserrat"),
     );
   }
 }
@@ -34,13 +35,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int rightDiceButton = 6;
 
   var random = math.Random();
-
-  void lancerDes() {
-    setState(() {
-      leftDiceButton = random.nextInt(6) + 1;
-      rightDiceButton = random.nextInt(6) + 1;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Container(
                         color: Colors.white,
                         padding: const EdgeInsets.all(20),
-                        child: const Text("Question 1"),
+                        child: const Text("Question 1",
+                            style: TextStyle(fontWeight: FontWeight.w600)),
                       ),
                     ),
                   ],
@@ -81,13 +76,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               50), // Ajoute un padding de 16 pixels sur les côtés
                     ),
                     onPressed: () {
-                      log("Right button pressed");
-                      lancerDes();
+                      log("Left button pressed");
                       log("$rightDiceButton");
                     },
                     child: const Text("VRAI",
-                        style:
-                            TextStyle(color: Color(0xFF443f39), fontSize: 20)),
+                        style: TextStyle(
+                            color: Color(0xFF443f39),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
@@ -98,12 +94,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onPressed: () {
                       log("Right button pressed");
-                      lancerDes();
                       log("$rightDiceButton");
                     },
                     child: const Text("FAUX",
-                        style:
-                            TextStyle(color: Color(0xFF443f39), fontSize: 20)),
+                        style: TextStyle(
+                            color: Color(0xFF443f39),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)),
                   ),
                 ]),
               ],
