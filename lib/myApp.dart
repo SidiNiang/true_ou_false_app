@@ -18,112 +18,234 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  int leftDiceButton = 4;
-  int rightDiceButton = 6;
-
   var random = math.Random();
+  var i = 0;
+  var score = 0;
+  bool quizTermine = false;
+  List<Question> questions =
+      []; // Déclarer une variable pour stocker les questions
+  bool loading =
+      true; // Indicateur pour savoir si les questions sont encore en cours de chargement
+
+  @override
+  void initState() {
+    super.initState();
+    getQuestions(); // Appeler la méthode pour charger les questions
+  }
+
+  // Charger les questions à partir de l'API
+  Future<void> getQuestions() async {
+    try {
+      final fetchedQuestions = await getQuestion();
+      setState(() {
+        questions = fetchedQuestions; // Mettre à jour la liste de questions
+        loading = false; // Les questions sont chargées, donc on change l'état
+      });
+    } catch (e) {
+      setState(() {
+        loading = false; // Si erreur, on change aussi l'état
+      });
+      print('Erreur lors du chargement des questions: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 252, 247, 252),
-        appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 221, 0, 255),
-          title: Text(
-            widget.title,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 252, 247, 252)),
+      backgroundColor: const Color.fromARGB(255, 252, 247, 252),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 221, 0, 255),
+        leading: const Icon(Icons.quiz, color: Colors.white),
+        titleSpacing: 0,
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 252, 247, 252)),
+        ),
+      ),
+      body:
+          loading // Vérifier si les questions sont toujours en train de se charger
+              ? const Center(
+                  child: SpinKitCubeGrid(
+                    color: Color.fromARGB(255, 221, 0, 255),
+                    size: 50.00,
+                  ),
+                )
+              : quizTermine
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Quiz terminé !",
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            "Votre score est $score/${questions.length}",
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                i = 0;
+                                score = 0;
+                                quizTermine = false;
+                              });
+                            },
+                            child: const Text("Rejouer"),
+                          )
+                        ],
+                      ),
+                    )
+                  : SafeArea(
+                      child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.all(25),
+                            padding: const EdgeInsets.all(30),
+                            decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 221, 0, 255),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.blue),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.blue,
+                                    offset: Offset(
+                                      2.0,
+                                      2.0,
+                                    ),
+                                    blurRadius: 7.0,
+                                    spreadRadius: 1.0,
+                                  ), //BoxShadow
+                                ]),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      DefaultTextStyle(
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w400,
+                                              fontFamily: "Montserrat"),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text("Question ${i + 1}",
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                  "Niveau ${questions[i].difficulte}"
+                                                      .toUpperCase(),
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              const SizedBox(height: 10),
+                                              Text(questions[i].question),
+                                            ],
+                                          )),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 220, 0, 0), // Couleur de fond
+                                    foregroundColor:
+                                        Colors.white, // Couleur du texte
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          10), // Coins arrondis
+                                    ),
+                                  ),
+                                  onPressed: () => {
+                                        print("btn vrai"),
+                                        setState(() {
+                                          if (questions[i].reponsecorrect ==
+                                              true) {
+                                            score = score + 1;
+                                          }
+                                          i++;
+                                          if (i >= questions.length) {
+                                            quizTermine = true;
+                                          }
+                                        })
+                                      },
+                                  child: const Text("VRAI",
+                                      style: TextStyle(
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                          fontWeight: FontWeight.bold))),
+                              const SizedBox(width: 20),
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.green, // Couleur de fond
+                                    foregroundColor:
+                                        Colors.white, // Couleur du texte
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          10), // Coins arrondis
+                                    ),
+                                  ),
+                                  onPressed: () => {
+                                        print("btn faux"),
+                                        setState(() {
+                                          if (questions[i].reponsecorrect ==
+                                              false) {
+                                            score = score + 1;
+                                          }
+                                          i++;
+                                          if (i >= questions.length) {
+                                            quizTermine = true;
+                                          }
+     })
+                                      },
+                                  child: const Text("FAUX",
+                                      style: TextStyle(
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                          fontWeight: FontWeight.bold))),
+                            ],
+                          )
+                        ],
+                      ),
+                    )),
+      floatingActionButton: FloatingActionButton.large(
+        onPressed: () {}, // VISUEL
+        backgroundColor: Colors.purple,
+        child: Text(
+          "Score $score/10",
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: 2,
           ),
         ),
-        body: FutureBuilder<List<Question>>(
-            future: getQuestion(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                    child: SpinKitCubeGrid(
-                  color: Colors.white,
-                  size: 50.00,
-                ));
-              } else if (snapshot.hasError) {
-                return Center(
-                    child: Text(
-                  "Erreur : ${snapshot.error}",
-                  style: const TextStyle(color: Colors.white),
-                ));
-              } else {
-                final questions = snapshot.data;
-                var i = 0;
-
-                return SafeArea(
-                    child: Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.all(25),
-                          padding: const EdgeInsets.all(30),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.blue),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    DefaultTextStyle(
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text("Question $i"),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                                "Difficulte : ${questions?[i].difficulte}"
-                                                    .toUpperCase(),
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold)),
-                                            const SizedBox(height: 10),
-                                            Text("${questions?[i].question}"),
-                                          ],
-                                        )),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                                onPressed: () => true,
-                                child: const Text("VRAI",
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.bold))),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            ElevatedButton(
-                                onPressed: () => false,
-                                child: const Text("FAUX",
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.bold))),
-                          ],
-                        )
-                      ],
-                    ));
-              }
-            }));
+      ),
+    );
   }
 }
 
@@ -141,66 +263,3 @@ Future<List<Question>> getQuestion() async {
     throw Exception("Erreur de chargement des questions");
   }
 }
-
-        // SafeArea(
-        //   child: Center(
-        //     child: Column(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         // Ligne des dés
-        //         Row(
-        //           children: [
-        //             Expanded(
-        //               child: Container(
-        //                 alignment: Alignment.center,
-        //                 color: Colors.white,
-        //                 padding: const EdgeInsets.symmetric(vertical: 150),
-        //                 child: const Text("Question 1 \n Est ce que la Terre est Ronde ?",
-        //                     style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-        //                     textAlign: TextAlign.center,),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //         const SizedBox(height: 20),
-        //         // Ligne des Boutons Vrai ou Faux
-        //         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        //           ElevatedButton(
-        //             style: ElevatedButton.styleFrom(
-        //               padding: const EdgeInsets.symmetric(
-        //                   horizontal:
-        //                       50), // Ajoute un padding de 16 pixels sur les côtés
-        //             ),
-        //             onPressed: () {
-        //               log("Left button pressed");
-        //               log("$rightDiceButton");
-        //             },
-        //             child: const Text("VRAI",
-        //                 style: TextStyle(
-        //                     color: Color(0xFF443f39),
-        //                     fontSize: 20,
-        //                     fontWeight: FontWeight.bold)),
-        //           ),
-        //           const SizedBox(width: 20),
-        //           ElevatedButton(
-        //             style: ElevatedButton.styleFrom(
-        //               padding: const EdgeInsets.symmetric(
-        //                   horizontal:
-        //                       50), // Ajoute un padding de 16 pixels sur les côtés
-        //             ),
-        //             onPressed: () {
-        //               log("Right button pressed");
-        //               log("$rightDiceButton");
-        //             },
-        //             child: const Text("FAUX",
-        //                 style: TextStyle(
-        //                     color: Color(0xFF443f39),
-        //                     fontSize: 20,
-        //                     fontWeight: FontWeight.bold)),
-        //           ),
-        //         ]),
-        //       ],
-        //     ),
-        //   ),
-        // ));
-        // }
