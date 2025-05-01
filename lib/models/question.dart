@@ -12,9 +12,9 @@ class Question {
 
   factory Question.fromJson(Map<String, dynamic> json){
     return Question(
-      difficulte: json["results"]["difficulty"],
-      reponsecorrect: json["results"]["correct_answer"],
-      question: json["results"]["question"],
+      difficulte: json["difficulty"] ?? "",
+      reponsecorrect: json["correct_answer"].toLowerCase() == 'true',
+      question: json["question"] ?? "",
     );
   }
 

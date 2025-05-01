@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:core' as api;
 import 'dart:core';
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -27,54 +26,122 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFF443f39),
+        backgroundColor: const Color.fromARGB(255, 252, 247, 252),
         appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 221, 0, 255),
           title: Text(
             widget.title,
             style: const TextStyle(
-                fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 255)),
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 252, 247, 252)),
           ),
-          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         ),
-
         body: FutureBuilder<List<Question>>(
-        future: getQuestion(),
-        builder: (context, snapshot) {
-          if(snapshot.connectionState == ConnectionState.waiting){
-             return const Center(
-                  child: SpinKitCubeGrid(
-                color: Colors.white,
-                size: 50.00,
-              ));
-          }else if(snapshot.hasError){
-            return Center (child: Text("Erreur : ${snapshot.hasError}"));
-          }else{
-            final questions = snapshot.data;
+            future: getQuestion(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                    child: SpinKitCubeGrid(
+                  color: Colors.white,
+                  size: 50.00,
+                ));
+              } else if (snapshot.hasError) {
+                return Center(
+                    child: Text(
+                  "Erreur : ${snapshot.error}",
+                  style: const TextStyle(color: Colors.white),
+                ));
+              } else {
+                final questions = snapshot.data;
+                var i = 0;
 
-            return Scaffold();
-          }
-        }
-        ));
-}}
-   
-  Future <List<Question>> getQuestion() async{
-
-    final response = await http.get(Uri.parse("https://opentdb.com/api.php?amount=10&category=18&type=boolean"));
-
-    if(response.statusCode == 200){ 
-      final data = jsonDecode(response.body);
-
-      final List questionJson = data['results'];
-
-      return questionJson.map((json) => Question.fromJson(json)).toList();
-    }else{
-      throw Exception("Erreur de chargement des questions");
-    }
+                return SafeArea(
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.all(25),
+                          padding: const EdgeInsets.all(30),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.blue),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    DefaultTextStyle(
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text("Question $i"),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                                "Difficulte : ${questions?[i].difficulte}"
+                                                    .toUpperCase(),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold)),
+                                            const SizedBox(height: 10),
+                                            Text("${questions?[i].question}"),
+                                          ],
+                                        )),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () => true,
+                                child: const Text("VRAI",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.bold))),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                                onPressed: () => false,
+                                child: const Text("FAUX",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.bold))),
+                          ],
+                        )
+                      ],
+                    ));
+              }
+            }));
   }
+}
 
+Future<List<Question>> getQuestion() async {
+  final response = await http.get(Uri.parse(
+      "https://opentdb.com/api.php?amount=10&category=18&type=boolean"));
 
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
 
-  
+    final List questionJson = data['results'];
+
+    return questionJson.map((json) => Question.fromJson(json)).toList();
+  } else {
+    throw Exception("Erreur de chargement des questions");
+  }
+}
+
         // SafeArea(
         //   child: Center(
         //     child: Column(
