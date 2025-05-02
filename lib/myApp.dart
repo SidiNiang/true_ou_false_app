@@ -220,7 +220,7 @@ class MyAppState extends State<MyApp> {
                                           if (i >= questions.length) {
                                             quizTermine = true;
                                           }
-     })
+                                        })
                                       },
                                   child: const Text("FAUX",
                                       style: TextStyle(
